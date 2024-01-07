@@ -1,0 +1,16 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+  Core.cpp
+  Unzipper.cpp
+  Zip-Wrapper.cpp
+D:\Dev\LC-Sync\LC-Sync\src\core\Zip-Wrapper.cpp(9,80): warning C4267: 'argument': conversion from 'size_t' to 'int32_t', possible loss of data
+  Zip-Wrapper.h
+  LC-Sync.cpp
+  Main.cpp
+x64\Release\Zip-Wrapper.obj : warning LNK4042: object specified more than once; extras ignored
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 1151 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  LC-Sync.vcxproj -> D:\Dev\LC-Sync\bin\x64\Release\LC-Sync.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.
