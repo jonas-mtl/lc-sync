@@ -1,2 +1,6 @@
 .vs
 bin
+LC-Sync/x64
+
+*.vcxproj.filters
+*.vcxproj.user
