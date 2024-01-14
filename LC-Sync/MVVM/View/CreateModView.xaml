@@ -161,7 +161,7 @@
                     HorizontalAlignment="Center"
                     Style="{StaticResource ButtonTheme}"
                     Content="Click here for help"
-                    Click="RLModRegister_Click"
+                    Click="ModHelp_Click"
                     Margin="0,25,0,0"/>
         </StackPanel>
     </StackPanel>

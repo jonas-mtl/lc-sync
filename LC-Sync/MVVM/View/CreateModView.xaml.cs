@@ -99,7 +99,7 @@ namespace LC_Sync.MVVM.View
             }
         }
 
-        private async void AddMod_Click(object sender, RoutedEventArgs e)
+        private void AddMod_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(ModInput))
             {
@@ -157,6 +157,11 @@ namespace LC_Sync.MVVM.View
             {
                 Log.ShowCustomMessageBox("ERROR", "Index not found!");
             }
+        }
+
+        private void ModHelp_Click (object sender, RoutedEventArgs e)
+        {
+            Log.ShowHelp();
         }
 
         private async void Publish_Click(object sender, RoutedEventArgs e)

@@ -11,6 +11,7 @@
         ResizeMode="NoResize"
         Background="Transparent"
         AllowsTransparency="True"
+        Icon="/Images/Icons/app.ico"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
 
     <Window.DataContext>

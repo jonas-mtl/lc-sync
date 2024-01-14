@@ -111,6 +111,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MVVM\View\HelpView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MVVM\View\CustomSelectBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -152,6 +156,9 @@
     <Compile Include="MVVM\ViewModel\MainViewModel.cs" />
     <Compile Include="MVVM\ViewModel\CreateModViewModel.cs" />
     <Compile Include="MVVM\ViewModel\SyncViewModel.cs" />
+    <Compile Include="MVVM\View\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MVVM\View\CustomSelectBox.xaml.cs">
       <DependentUpon>CustomSelectBox.xaml</DependentUpon>
     </Compile>
@@ -196,7 +203,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\Icons\app.ico" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Banners\LethalCompany.jpg" />
   </ItemGroup>

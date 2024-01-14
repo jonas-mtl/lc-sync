@@ -53,6 +53,12 @@ namespace LC_Sync.Core.Util
             customMessageBox.ShowDialog();
         }
 
+        public static void ShowHelp()
+        {
+            HelpView helpView = new HelpView();
+            helpView.ShowDialog();
+        }
+
         private static string GetCurrentTimestamp() {
             // Get the current time
             DateTime currentTime = DateTime.Now;
