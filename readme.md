@@ -1,8 +1,7 @@
 <div align="center">
-  ##Sync Lethal Company mods with your friends
+  <h1>👾 Sync Lethal Company mods with your friends 👾</h1>
 </div>
 
-<hr/>
 
 <div align="center">
   <img src="https://img.shields.io/github/downloads/jonas-mtl/LCSync/total?style=for-the-badge" alt="Downloads" />
