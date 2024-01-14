@@ -1,0 +1,57 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:LC_Sync.Theme">
+
+    <Style TargetType="{x:Type TextBox}" x:Key="Keybox">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBox}">
+                    <Border CornerRadius="10"
+                            Width="400"
+                            Height="40">
+
+                        <Border.Background>
+                            <SolidColorBrush Color="Black" Opacity="0.5"/>
+                        </Border.Background>
+
+                        <Grid>
+                            <Rectangle StrokeThickness="1"/>
+                            <TextBox Margin="4"
+                                     Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Text}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     VerticalContentAlignment="Center"
+                                     Padding="5"
+                                     FontSize="16"
+                                     FontFamily="/Fonts/#3270"
+                                     Foreground="#fff"
+                                     x:Name="SearchBox"
+                                     CaretBrush="#CFCFCF"/>
+
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="Enter key"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       Margin="15,0,0,0"
+                                       FontSize="16"
+                                       Foreground="DarkGray"
+                                       FontFamily="/Fonts/#3270"
+                                       Grid.Column="1">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

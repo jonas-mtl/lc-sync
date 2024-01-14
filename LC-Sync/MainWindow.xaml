@@ -1,0 +1,112 @@
+﻿<Window x:Class="LC_Sync.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LC_Sync"
+        xmlns:viewModel="clr-namespace:LC_Sync.MVVM.ViewModel"
+        mc:Ignorable="d"
+        Height="600" Width="755"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+
+    <Window.DataContext>
+        <viewModel:MainViewModel/>
+    </Window.DataContext>
+    
+    <Border Background="#141212"
+            CornerRadius="15">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Background Image-->
+            <Border Name="MaskWindow"
+                    Grid.ColumnSpan="2"
+                    Background="Black"
+                    CornerRadius="15" />
+
+
+            <Border Name="MaskNav"
+                    Grid.ColumnSpan="1"
+                    Background="Black"
+                    CornerRadius="15" />
+
+            <Grid Grid.ColumnSpan="2">
+                <Grid.OpacityMask>
+                    <VisualBrush Visual="{Binding ElementName=MaskWindow}" />
+                </Grid.OpacityMask>
+
+                <Image Source="/Images/Banners/LethalCompany.jpg"
+                       Stretch="UniformToFill" 
+                       VerticalAlignment="Top" 
+                       HorizontalAlignment="Center">
+                    <Image.Effect>
+                        <BlurEffect Radius="15"/>
+                    </Image.Effect>
+                </Image>
+            </Grid>
+
+            <!-- Nav -->
+            <StackPanel Grid.Row="1">
+
+                <!-- Nav Background -->
+                <StackPanel.OpacityMask>
+                    <VisualBrush Visual="{Binding ElementName=MaskNav}" />
+                </StackPanel.OpacityMask>
+
+                <StackPanel.Background>
+                    <SolidColorBrush Color="Black" Opacity="0.5"/>
+                </StackPanel.Background>
+                
+                
+                <TextBlock Text="LC_Sync"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="20"
+                           Foreground="White"
+                           FontSize="40"/>
+
+                <RadioButton Content="| Sync Mods"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="18"
+                             Style="{StaticResource MenuButtonTheme}"
+                             IsChecked="True"
+                             Command="{Binding SyncViewCommand}"/>
+
+                <RadioButton Content="| Manage Modpack"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="18"
+                             Style="{StaticResource MenuButtonTheme}"
+                             Command="{Binding CreateModViewCommand}"/>
+
+                <RadioButton Content="| Unmod"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="18"
+                             Click="Unmod_Click"
+                             Style="{StaticResource MenuButtonTheme}"/>
+                
+                <RadioButton Content="Exit here"
+                             Margin="0,250,0,0"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="18"
+                             Click="ExitButton_Click"
+                             Style="{StaticResource MenuButtonTheme}"/>     
+
+            </StackPanel>
+
+            <ContentControl Grid.Column="1"
+                            Margin="10"
+                            Content="{Binding CurrentView}"/>
+        </Grid>
+    </Border>
+</Window>

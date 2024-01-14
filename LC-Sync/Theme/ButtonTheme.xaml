@@ -1,0 +1,57 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style TargetType="{x:Type Button}" x:Key="ButtonTheme">
+        <Style.Setters>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="10"
+                                Width="{TemplateBinding Width}"
+                                Height="40"
+                                Background="{TemplateBinding Background}"
+                                HorizontalAlignment="Center">
+                            
+                            <Grid VerticalAlignment="Stretch"
+                                  HorizontalAlignment="Stretch">
+                                
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="18"
+                                           
+                                           FontFamily="/Fonts/#3270"
+                                           Foreground="White"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="Black" Opacity="0.2"/>
+                </Setter.Value>
+            </Setter>
+        </Style.Setters>
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="Black" Opacity="0.5"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="Black" Opacity="0.7"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
