@@ -1,10 +1,15 @@
-﻿using LC_Sync.Core.LCSync;
+﻿using HtmlAgilityPack;
+using LC_Sync.Core.LCSync;
 using LC_Sync.Core.Util;
+using LC_Sync.MVVM.View;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Xml;
 
 
 namespace LC_Sync.Core
@@ -12,6 +17,7 @@ namespace LC_Sync.Core
     internal class InitCore
     {
         public static string currentlyLoadedModlist = "";
+        public static Version currentlyLoadedVersion = null;
         public static List<ModInfo> currentlyLoadedMods = new List<ModInfo>();
 
         public static bool updatingPackageIndex = true;
@@ -51,6 +57,7 @@ namespace LC_Sync.Core
             Log.Info($"DONE! \n");
 
             await getLoadedModsList();
+            await checkForUpdates();
         }
 
         public static async Task getLoadedModsList()
@@ -66,6 +73,63 @@ namespace LC_Sync.Core
                     {
                         currentlyLoadedModlist += $"- {mod.ModName} by {mod.ModNamespace}\n";
                     }
+                }
+            }
+        }
+
+        public static async Task checkForUpdates()
+        {
+            string ghReleaseInfo = await GetLatestReleaseInfo();
+            ghReleaseInfo = ghReleaseInfo.Replace("Release ", "");
+
+            string currentVersion = currentlyLoadedVersion.ToString().Remove(currentlyLoadedVersion.ToString().Length - 2);
+
+            Console.WriteLine("Newest version: " + ghReleaseInfo + ", current version: " + currentlyLoadedVersion);
+
+            if (ghReleaseInfo != currentVersion)
+            {
+                CustomSelectBox prompt = new CustomSelectBox();
+                prompt.Title = string.Empty;
+                prompt.Width = 520;
+                prompt.Text = "A new version is available, do you want to update?";
+                prompt.ShowDialog();
+
+                while (!prompt.closed)
+                {
+                    continue;
+                }
+
+                if (prompt.returnValue)
+                {
+                    string currentPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                    Process.Start(currentPath + @"\LC-Sync-updater.exe");
+                    Environment.Exit(0);
+                }
+            }
+        }
+
+        static async Task<string> GetLatestReleaseInfo()
+        {
+            string url = "https://github.com/jonas-mtl/LCSync/releases/latest";
+
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    string html = await client.GetStringAsync(url);
+
+                    HtmlDocument doc = new HtmlDocument();
+                    doc.LoadHtml(html);
+
+                    HtmlNode releaseHeader = doc.DocumentNode.SelectSingleNode("//h1[contains(text(), 'Release')]");
+
+                    string releaseText = releaseHeader?.InnerText.Trim();
+
+                    return releaseText ?? "Release information not found";
+                }
+                catch (Exception ex)
+                {
+                    return $"Error: {ex.Message}";
                 }
             }
         }
