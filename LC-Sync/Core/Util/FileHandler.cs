@@ -1,4 +1,5 @@
 ﻿using LC_Sync.Core.LCSync;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -105,7 +106,7 @@ namespace LC_Sync.Core.Util
         {
             File.WriteAllText(SteamHandler.LCInstallationPath + "\\.lcsync", key);
             LCSyncData.StoredSrcBinKey = key;
-            Log.Info($"Stored key ({key}) locally.\n");
+            Console.WriteLine($"Stored key ({key}) locally.\n");
         }
     }
 }

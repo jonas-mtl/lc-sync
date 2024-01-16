@@ -1,11 +1,7 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,42 +16,11 @@ namespace LC_Sync.MVVM.View
     {
         public static CreateModView Instance { get; private set; }
 
-        public CreateModView()
-        {
-            InitializeComponent();
-            DataContext = this;
-            Instance = this;
+        public string modListLog = "Added mods:\n";
+        public List<ModInfo> modStorage = new List<ModInfo>();
 
-            LCSyncData.ClearMods();
-
-            LogTextBlock.Text = Log.LogString;
-            Log.PropertyChanged += Log_PropertyChanged;
-
-            // Initialize the timer
-            textChangeTimer = new System.Timers.Timer();
-            textChangeTimer.Interval = 500;
-            textChangeTimer.AutoReset = false;
-            textChangeTimer.Elapsed += TextChangeTimerElapsed;
-
-            PublishModButton.IsEnabled = false;
-            ModTextBlock.Text = modListLog + InitCore.currentlyLoadedModlist;
-            modListLog = modListLog + InitCore.currentlyLoadedModlist;
-            modStorage = InitCore.currentlyLoadedMods;
-
-            if (modStorage.Count != 0) PublishModButton.IsEnabled = true;
-
-            while (InitCore.updatingPackageIndex)
-            {
-                enableSpinner();
-                ModBox.IsReadOnly = true;
-                ModBox.Text = "Mod index is updating...";
-            }
-
-            ModBox.Text = "";
-            ModBox.IsReadOnly = false;
-
-            disableSpinner();
-        }
+        private DateTime lastUpdated = DateTime.Now;
+        private System.Timers.Timer textChangeTimer;
 
         private string _modInput = "";
         public string ModInput
@@ -70,11 +35,44 @@ namespace LC_Sync.MVVM.View
                 }
             }
         }
-        public string modListLog = "Added mods:\n";
-        public List<ModInfo> modStorage = new List<ModInfo>();
 
-        private DateTime lastUpdated = DateTime.Now;
-        private System.Timers.Timer textChangeTimer;
+        public CreateModView()
+        {
+            InitializeComponent();
+            DataContext = this;
+            Instance = this;
+
+            LCSyncData.ClearMods();
+
+            LogTextBlock.Text = Log.LogString;
+            Log.PropertyChanged += Log_PropertyChanged;
+
+            // Initialize the timer for search
+            textChangeTimer = new System.Timers.Timer();
+            textChangeTimer.Interval = 700;
+            textChangeTimer.AutoReset = false;
+            textChangeTimer.Elapsed += TextChangeTimerElapsed;
+
+            Task.Run(() => InitCore.getLoadedModsList()).Wait();
+
+            // Update currently installed mods display
+            modStorage = InitCore.currentlyLoadedMods;
+            modListLog = modListLog + InitCore.currentlyLoadedModlist;
+            ModTextBlock.Text = modListLog;
+
+
+            if (modStorage != null && modStorage.Count != 0) PublishModButton.IsEnabled = true; else PublishModButton.IsEnabled = false;
+
+            while (InitCore.updatingPackageIndex)
+            {
+                enableSpinner();
+                ModBox.IsReadOnly = true;
+            }
+
+            ModBox.IsReadOnly = false;
+
+            disableSpinner();
+        }
 
         private void ModBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -83,13 +81,17 @@ namespace LC_Sync.MVVM.View
 
             textChangeTimer.Stop();
             textChangeTimer.Start();
+
+            if (string.IsNullOrEmpty(ModInput)) disableSpinner();
         }
 
+        private bool loadingSearchResults = false;
         private void TextChangeTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             // Check if no text changes occurred during the specified delay
-            if ((DateTime.Now - lastUpdated).TotalMilliseconds >= textChangeTimer.Interval)
+            if ((DateTime.Now - lastUpdated).TotalMilliseconds >= textChangeTimer.Interval && !loadingSearchResults && !string.IsNullOrEmpty(ModInput))
             {
+                loadingSearchResults = true;
                 List<ModInfo> modsFound = new List<ModInfo>();
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -99,7 +101,7 @@ namespace LC_Sync.MVVM.View
                 StringCompare sc = new StringCompare(65,75,20,30);
                 foreach (ModInfo item in LCSyncData.TSPackageIndex)
                 {
-                    if (sc.IsEqual(ModInput, item.ModName))
+                    if (sc.IsEqual(ModInput, item.ModName) || item.ModName.ToLower().Contains(ModInput.ToLower()) || item.ModNamespace.ToLower().Contains(ModInput.ToLower()))
                     {
                         createModController(item);
                     }
@@ -112,6 +114,7 @@ namespace LC_Sync.MVVM.View
                 }
 
                 disableSpinner();
+                loadingSearchResults = false;
             }
         }
 
@@ -270,6 +273,49 @@ namespace LC_Sync.MVVM.View
             disableSpinner();
         }
 
+
+        private void ModBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (ModInput == "Enter Url/Name")
+            {
+                ModInput = string.Empty;
+            }
+        }
+
+        public void enableSpinner()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Spinner.Spin = true;
+                Spinner.Opacity = 1;
+            });
+        }
+
+        private void disableSpinner()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Spinner.Spin = false;
+                Spinner.Opacity = 0.25;
+            });
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void Log_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Log.LogString))
+            {
+                LogTextBlock.Text = Log.LogString;
+                LogScrollViewer.ScrollToEnd();
+            }
+        }
+
         private void createModController(ModInfo mod)
         {
             Application.Current.Dispatcher.Invoke(() =>
@@ -317,46 +363,5 @@ namespace LC_Sync.MVVM.View
             });
         }
 
-        private void ModBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (ModInput == "Enter Url/Name")
-            {
-                ModInput = string.Empty;
-            }
-        }
-
-        public void enableSpinner()
-        {
-            Dispatcher.Invoke(() =>
-            {
-                Spinner.Spin = true;
-                Spinner.Opacity = 1;
-            });
-        }
-
-        private void disableSpinner()
-        {
-            Dispatcher.Invoke(() =>
-            {
-                Spinner.Spin = false;
-                Spinner.Opacity = 0.25;
-            });
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void Log_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Log.LogString))
-            {
-                LogTextBlock.Text = Log.LogString;
-                LogScrollViewer.ScrollToEnd();
-            }
-        }
     }
 }

@@ -153,17 +153,11 @@ namespace LC_Sync.Core.LCSync
 
             if (!File.Exists(jsonPath))
             {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-                Log.Info("Downloading mod package index...");
-
-                string url = "https://thunderstore.io/c/lethal-company/api/v1/package/";
-
                 try
                 {
                     using (HttpClient client = new HttpClient())
                     {
-                        HttpResponseMessage response = await client.GetAsync(url);
+                        HttpResponseMessage response = await client.GetAsync("https://thunderstore.io/c/lethal-company/api/v1/package/");
 
                         if (response.IsSuccessStatusCode)
                         {
@@ -182,10 +176,6 @@ namespace LC_Sync.Core.LCSync
                 {
                     Log.Errored($"An error occurred: {ex.Message}");
                 }
-
-                TimeSpan elapsed = stopwatch.Elapsed;
-                Log.Info($"DONE! ({Log.FormatElapsedTime(elapsed)})\n");
-
             }
             else
             {

@@ -50,13 +50,22 @@ namespace LC_Sync.Core
             });
             Log.Info($"DONE! \n");
 
+            await getLoadedModsList();
+        }
+
+        public static async Task getLoadedModsList()
+        {
             // Upadte modlist in CreateModView
-            currentlyLoadedMods = await LCSyncData.getSrcbinModsAsModInfo();
-            if (currentlyLoadedMods != null)
+            currentlyLoadedModlist = "";
+            if (!string.IsNullOrEmpty(LCSyncData.StoredSrcBinKey))
             {
-                foreach (ModInfo mod in currentlyLoadedMods)
+                currentlyLoadedMods = await LCSyncData.getSrcbinModsAsModInfo();
+                if (currentlyLoadedMods != null)
                 {
-                    currentlyLoadedModlist += $"- {mod.ModName} by {mod.ModNamespace}\n";
+                    foreach (ModInfo mod in currentlyLoadedMods)
+                    {
+                        currentlyLoadedModlist += $"- {mod.ModName} by {mod.ModNamespace}\n";
+                    }
                 }
             }
         }
