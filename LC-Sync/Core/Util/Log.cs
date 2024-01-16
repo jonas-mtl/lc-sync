@@ -27,7 +27,6 @@ namespace LC_Sync.Core.Util
         {
             LogString += "[" + GetCurrentTimestamp() + "] " + message + "\n";
             Console.WriteLine("[" + GetCurrentTimestamp() + "] " + message + "\n");
-
         }
 
         public static void Errored(string message)

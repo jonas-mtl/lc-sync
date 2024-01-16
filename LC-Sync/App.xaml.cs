@@ -12,7 +12,7 @@ namespace LC_Sync
         {
             base.OnStartup(e);
 
-            InitCore.SetupCore();
+            InitCore.SetupCoreAsync();
         }
     }
 }

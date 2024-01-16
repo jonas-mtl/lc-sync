@@ -28,6 +28,7 @@
             
                 <Button Content="Okay" 
                         Width="100"
+                        Height="35"
                         HorizontalAlignment="Center" 
                         VerticalAlignment="Center" 
                         Click="Button_Click"

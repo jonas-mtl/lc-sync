@@ -107,6 +107,7 @@
     <Compile Include="Core\Util\FileHandler.cs" />
     <Compile Include="Core\Util\Log.cs" />
     <Compile Include="Core\Util\SteamHandler.cs" />
+    <Compile Include="Core\Util\StringCompare.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -144,6 +145,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Theme\KeyboxTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Theme\ModListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

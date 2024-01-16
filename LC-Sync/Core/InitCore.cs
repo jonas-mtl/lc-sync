@@ -1,14 +1,21 @@
-﻿using LC_Sync.Core.Util;
+﻿using LC_Sync.Core.LCSync;
+using LC_Sync.Core.Util;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 
 namespace LC_Sync.Core
 {
     internal class InitCore
-    { 
-        public static void SetupCore()
+    {
+        public static string currentlyLoadedModlist = "";
+        public static List<ModInfo> currentlyLoadedMods = new List<ModInfo>();
+
+        public static bool updatingPackageIndex = true;
+        public static async Task SetupCoreAsync()
         {
             SteamHandler.FindSteamPath();
 
@@ -32,7 +39,25 @@ namespace LC_Sync.Core
             {
                 Log.ShowCustomMessageBox("ERROR", "Close Lethal Company first!", messageBoxBackground);
                 Environment.Exit(1);
+            }
 
+            FileHandler.getPreviousKey();
+
+            await Task.Run(() =>
+            {
+                Task task = LCSyncData.InitPackageIndex();
+                updatingPackageIndex = false;
+            });
+            Log.Info($"DONE! \n");
+
+            // Upadte modlist in CreateModView
+            currentlyLoadedMods = await LCSyncData.getSrcbinModsAsModInfo();
+            if (currentlyLoadedMods != null)
+            {
+                foreach (ModInfo mod in currentlyLoadedMods)
+                {
+                    currentlyLoadedModlist += $"- {mod.ModName} by {mod.ModNamespace}\n";
+                }
             }
         }
     }

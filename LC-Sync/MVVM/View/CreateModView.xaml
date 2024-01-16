@@ -33,8 +33,7 @@
         <StackPanel>
             <Border CornerRadius="10"
                     Width="525"
-                    Height="100"
-                    Margin="0,0,0,25">     
+                    Height="160">     
 
                 <Border.Background>
                     <SolidColorBrush Color="Black" Opacity="0.2"/>
@@ -42,55 +41,14 @@
 
                 <ScrollViewer VerticalScrollBarVisibility="Hidden"
                               x:Name="ModSearchScrollViewer">
-                    <TextBox Padding="20"
-                             Name="ModSearchTextBlock"
-                             Foreground="White"
-                             FontSize="15"
-                             TextWrapping="Wrap"
-                             IsReadOnly="True"
-                             BorderBrush="{x:Null}"
-                             Background="{x:Null}"
-                             SelectionBrush="Gray"
-                             SelectionOpacity="0.4"
-                             FontFamily="/Fonts/#3270"
-                             Style="{StaticResource NoFocusVisualStyleTextBox}">
-                    </TextBox>
+                    <StackPanel x:Name="ModListStackPanel">
+                        <!-- Mod items will be added dynamically here -->
+                    </StackPanel>
                 </ScrollViewer>
             </Border>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button
-                 Width="150"
-                 Height="40"
-                 VerticalContentAlignment="Center"
-                 HorizontalAlignment="Center"
-                 Style="{StaticResource ButtonTheme}"
-                 Content="Add Mod"
-                 Click="AddMod_Click"/>
-
-            <Button Width="150"
-                    Height="40"
-                    VerticalContentAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Style="{StaticResource ButtonTheme}"
-                    Content="Remove Mod"
-                    Name="RemoveModButton"
-                    Click="RemoveMod_Click"
-                    Margin="20,0,0,0"/>
-
-            <Button
-                 Width="150"
-                 Height="40"
-                 VerticalContentAlignment="Center"
-                 HorizontalAlignment="Center"
-                 Style="{StaticResource ButtonTheme}"
-                 Content="Publish"
-                 Name="PublishModButton"
-                 Click="Publish_Click"
-                 Margin="20,0,0,0"/>
-        </StackPanel>
-        
+       
         
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <Border CornerRadius="10"
@@ -146,8 +104,8 @@
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
-            
-            <Button Width="253"
+
+            <Button Width="195"
                     Height="40"
                     VerticalContentAlignment="Center"
                     HorizontalAlignment="Center"
@@ -155,14 +113,25 @@
                     Content="Reload mod register"
                     Click="RLModRegister_Click"
                     Margin="0,25,20,0"/>
-            <Button Width="253"
+            <Button Width="129"
                     Height="40"
                     VerticalContentAlignment="Center"
                     HorizontalAlignment="Center"
                     Style="{StaticResource ButtonTheme}"
-                    Content="Click here for help"
+                    Content="Help"
                     Click="ModHelp_Click"
                     Margin="0,25,0,0"/>
+            <Button Width="162"
+                    Height="40"
+                    VerticalContentAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center"
+                    Style="{StaticResource ButtonTheme}"
+                    Content="Publish"
+                    Name="PublishModButton"
+                    Click="Publish_Click"
+                    Margin="20,0,0,0"/>
+            
         </StackPanel>
     </StackPanel>
 </UserControl>

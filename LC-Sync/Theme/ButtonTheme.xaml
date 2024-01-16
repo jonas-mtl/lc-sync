@@ -10,7 +10,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border CornerRadius="10"
                                 Width="{TemplateBinding Width}"
-                                Height="40"
+                                Height="{TemplateBinding Height}"
                                 Background="{TemplateBinding Background}"
                                 HorizontalAlignment="Center">
                             

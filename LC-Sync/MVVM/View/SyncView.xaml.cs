@@ -21,7 +21,6 @@ namespace LC_Sync.MVVM.View
             LogTextBlock.Text = Log.LogString;
             Log.PropertyChanged += Log_PropertyChanged;
 
-            FileHandler.getPreviousKey();
 
             UsePrevKeyButton.Visibility = Visibility.Collapsed;
             if (!string.IsNullOrEmpty(LCSyncData.StoredSrcBinKey))

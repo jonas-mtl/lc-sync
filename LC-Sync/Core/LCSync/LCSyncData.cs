@@ -63,6 +63,32 @@ namespace LC_Sync.Core.LCSync
             return true;
         }
 
+        public static async Task<List<ModInfo>> getSrcbinModsAsModInfo()
+        {
+            List<ModInfo> modInfoList = new List<ModInfo>();
+            JToken srcbinDataJSON = await LCSyncRequests.GetSrcbinDataAsync(StoredSrcBinKey);
+
+            if (srcbinDataJSON == null) return null;
+
+            // Check if "mods" array exists in the JSON
+            if (srcbinDataJSON["mods"] is JArray modsArray)
+            {
+                foreach (JToken modToken in modsArray)
+                {
+                    ModInfo newMod = new ModInfo() {ModName = modToken.Value<string>("modName"), ModNamespace = modToken.Value<string>("modNamespace") };
+
+                    modInfoList.Add(newMod);
+                }
+            }
+            else
+            {
+                Log.Errored("Invalid Sourcebin JSON");
+                return null;
+            }
+
+            return modInfoList;
+        }
+
         public static async Task<string> UploadSrcbinModsAsync()
         {
             string jsonPath = SteamHandler.LCInstallationPath + "\\lcsync.json";
@@ -173,7 +199,6 @@ namespace LC_Sync.Core.LCSync
                 parsePackageString(packageContent);
 
                 TimeSpan elapsed = stopwatch.Elapsed;
-                Log.Info($"DONE! ({Log.FormatElapsedTime(elapsed)}, Indexed {TSPackageIndex.Count} mods)\n");
             }
         }
 

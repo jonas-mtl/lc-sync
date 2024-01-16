@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using LC_Sync.Core;
 using LC_Sync.Core.LCSync;
 using LC_Sync.Core.Util;
 
@@ -29,15 +33,28 @@ namespace LC_Sync.MVVM.View
 
             // Initialize the timer
             textChangeTimer = new System.Timers.Timer();
-            textChangeTimer.Interval = 1000; // Set the delay in milliseconds (adjust as needed)
+            textChangeTimer.Interval = 500;
             textChangeTimer.AutoReset = false;
             textChangeTimer.Elapsed += TextChangeTimerElapsed;
 
-            RemoveModButton.IsEnabled = false;
             PublishModButton.IsEnabled = false;
+            ModTextBlock.Text = modListLog + InitCore.currentlyLoadedModlist;
+            modListLog = modListLog + InitCore.currentlyLoadedModlist;
+            modStorage = InitCore.currentlyLoadedMods;
 
-            ModTextBlock.Text = modListLog;
-            ModSearchTextBlock.Text = "Available Mods:\n";
+            if (modStorage.Count != 0) PublishModButton.IsEnabled = true;
+
+            while (InitCore.updatingPackageIndex)
+            {
+                enableSpinner();
+                ModBox.IsReadOnly = true;
+                ModBox.Text = "Mod index is updating...";
+            }
+
+            ModBox.Text = "";
+            ModBox.IsReadOnly = false;
+
+            disableSpinner();
         }
 
         private string _modInput = "";
@@ -73,18 +90,18 @@ namespace LC_Sync.MVVM.View
             // Check if no text changes occurred during the specified delay
             if ((DateTime.Now - lastUpdated).TotalMilliseconds >= textChangeTimer.Interval)
             {
-                // Execute your custom logic here
                 List<ModInfo> modsFound = new List<ModInfo>();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    ModListStackPanel.Children.Clear();
+                });
 
+                StringCompare sc = new StringCompare(65,75,20,30);
                 foreach (ModInfo item in LCSyncData.TSPackageIndex)
                 {
-                    if (item.ModName.Contains(ModInput) || 
-                        item.ModName.ToLower().Contains(ModInput) ||
-                        item.ModNamespace.Contains(ModInput) || 
-                        item.ModNamespace.ToLower().Contains(ModInput) ||
-                        ModInput.Contains($"{item.ModName}/{item.ModNamespace}"))
+                    if (sc.IsEqual(ModInput, item.ModName))
                     {
-                        modsFound.Add(item);
+                        createModController(item);
                     }
                 }
 
@@ -94,26 +111,41 @@ namespace LC_Sync.MVVM.View
                     modsFoundString += "- " + item.ModName + "/" + item.ModNamespace + "\n";
                 }
 
-                Dispatcher.Invoke(() => ModSearchTextBlock.Text = "Available Mods:\n" + modsFoundString);
                 disableSpinner();
             }
         }
 
         private void AddMod_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(ModInput))
+            enableSpinner();
+
+            string modListString = "";
+
+            if (sender is FrameworkElement button)
             {
-                Log.ShowCustomMessageBox("ERROR", "Invalid input!");
-                return;
+                DependencyObject parent = VisualTreeHelper.GetParent(button);
+
+                if (parent is StackPanel stackPanel)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(stackPanel, 0) as DependencyObject;
+
+                    if (child is TextBox textbox)
+                    {
+
+                        modListString = textbox.Text;
+                    }
+                }
             }
 
-            enableSpinner();
+            string modListData = modListString.Substring(2);
+            string[] modListParsed = modListData.Split(new string[] { " by " }, StringSplitOptions.None);
+
+            ModInfo currentMod = new ModInfo() { ModName = modListParsed[0] , ModNamespace = modListParsed[1] };
+
             bool itemFound = false;
             foreach (ModInfo item in LCSyncData.TSPackageIndex)
             {
-                string itemstring = item.ModName + "/" + item.ModNamespace;
-
-                if (itemstring == ModInput || itemstring.ToLower() == ModInput)
+                if (currentMod.ModNamespace == item.ModNamespace && currentMod.ModName == item.ModName)
                 {
                     foreach (ModInfo storageMod in modStorage)
                     {
@@ -127,10 +159,8 @@ namespace LC_Sync.MVVM.View
 
                     modStorage.Add(item);
 
-                    modListLog += "- " + itemstring + "\n";
+                    modListLog += modListString + "\n";
                     ModTextBlock.Text = modListLog;
-                    RemoveModButton.IsEnabled = true;
-                    PublishModButton.IsEnabled = true;
                     itemFound = true;
                 }
             }
@@ -142,6 +172,11 @@ namespace LC_Sync.MVVM.View
                 return;
             }
 
+            if (modStorage.Count > 0)
+            {
+                PublishModButton.IsEnabled = true;
+            }
+
             disableSpinner();
         }
 
@@ -150,13 +185,11 @@ namespace LC_Sync.MVVM.View
             if (File.Exists(SteamHandler.LCInstallationPath + "\\package-index.json"))
             {
                 File.Delete(SteamHandler.LCInstallationPath + "\\package-index.json");
-                enableSpinner();
-                await LCSyncData.InitPackageIndex();
-                disableSpinner();
-            } else
-            {
-                Log.ShowCustomMessageBox("ERROR", "Index not found!");
             }
+
+            enableSpinner();
+            await LCSyncData.InitPackageIndex();
+            disableSpinner();
         }
 
         private void ModHelp_Click (object sender, RoutedEventArgs e)
@@ -191,55 +224,101 @@ namespace LC_Sync.MVVM.View
 
         private void RemoveMod_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(ModInput))
-            {
-                Log.ShowCustomMessageBox("ERROR", "Invalid input!");
-                return;
-            }
-
             enableSpinner();
-            bool itemFound = false;
-            for (int i = modStorage.Count - 1; i >= 0; i--)
+
+            string modListString = "";
+
+            if (sender is FrameworkElement button)
             {
-                ModInfo item = modStorage[i];
-                string itemstring = item.ModName + "/" + item.ModNamespace;
+                DependencyObject parent = VisualTreeHelper.GetParent(button);
 
-                if (itemstring == ModInput || itemstring.ToLower() == ModInput)
+                if (parent is StackPanel stackPanel)
                 {
-                    modStorage.Remove(item);
+                    DependencyObject child = VisualTreeHelper.GetChild(stackPanel, 0) as DependencyObject;
 
-                    modListLog = modListLog.Replace("- " + itemstring + "\n", "");
-                    ModTextBlock.Text = modListLog;
-
-                    if (modStorage.Count == 0)
+                    if (child is TextBox textbox)
                     {
-                        RemoveModButton.IsEnabled = false;
-                        PublishModButton.IsEnabled = false;
-                    }
 
-                    itemFound = true;
+                        modListString = textbox.Text;
+                    }
                 }
             }
 
-            if (!itemFound)
+            string modListData = modListString.Substring(2);
+            string[] modListParsed = modListData.Split(new string[] { " by " }, StringSplitOptions.None);
+
+            ModInfo currentMod = new ModInfo() { ModName = modListParsed[0], ModNamespace = modListParsed[1] };
+
+            for (int i = modStorage.Count - 1; i >= 0; i--)
             {
-                disableSpinner();
-                Log.ShowCustomMessageBox("ERROR", "Mod not found!");
-                return;
+                ModInfo item = modStorage[i];
+
+                if (item.ModName == currentMod.ModName && item.ModNamespace == item.ModNamespace)
+                {
+                    modStorage.Remove(item);
+
+                    modListLog = modListLog.Replace(modListString + "\n", "");
+                    ModTextBlock.Text = modListLog;
+                }
+            }
+
+            if (modStorage.Count == 0)
+            {
+                PublishModButton.IsEnabled = false;
             }
 
             disableSpinner();
         }
 
-        private async void ModBox_GotFocus(object sender, RoutedEventArgs e)
+        private void createModController(ModInfo mod)
         {
-            if (LCSyncData.TSPackageIndex.Count == 0)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                enableSpinner();
-                await LCSyncData.InitPackageIndex();
-                disableSpinner();
-            }
+                TextBox modNameTextBox = new TextBox();
+                modNameTextBox.Text = $"- {mod.ModName} by {mod.ModNamespace}";
+                modNameTextBox.Margin = new Thickness(10, 0, 0, 0);
+                modNameTextBox.IsReadOnly = true;
+                modNameTextBox.VerticalAlignment = VerticalAlignment.Center;
+                modNameTextBox.Style = (Style)Application.Current.Resources["NoFocusVisualStyleTextBox"];
+                modNameTextBox.BorderThickness = new Thickness(0);
+                modNameTextBox.Foreground = new SolidColorBrush(Colors.White);
+                modNameTextBox.FontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Fonts/#3270");
+                modNameTextBox.FontSize = 15;
+                modNameTextBox.Background = new SolidColorBrush(Colors.Transparent);
 
+                Button addButton = new Button();
+                addButton.Click += (s, e) => { AddMod_Click(s, e); };
+                addButton.Content = "+";
+                addButton.Margin = new Thickness(10, 5, 10, 5);
+                addButton.Width = 30;
+                addButton.Height = 20;
+                addButton.FontFamily = new FontFamily("/Fonts/#3270");
+                addButton.Style = (Style)Application.Current.Resources["ButtonTheme"];
+
+
+                Button removeButton = new Button();
+                removeButton.Click += (s, e) => { RemoveMod_Click(s, e); };
+                removeButton.Content = "-";
+                removeButton.Width = 30;
+                removeButton.Height = 20;
+                removeButton.FontFamily = new FontFamily("/Fonts/#3270");
+                removeButton.Style = (Style)Application.Current.Resources["ButtonTheme"];
+
+                StackPanel buttonStackPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal
+                };
+
+                buttonStackPanel.Children.Add(modNameTextBox);
+                buttonStackPanel.Children.Add(addButton);
+                buttonStackPanel.Children.Add(removeButton);
+
+                ModListStackPanel.Children.Add(buttonStackPanel);
+            });
+        }
+
+        private void ModBox_GotFocus(object sender, RoutedEventArgs e)
+        {
             if (ModInput == "Enter Url/Name")
             {
                 ModInput = string.Empty;
