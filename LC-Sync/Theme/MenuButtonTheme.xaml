@@ -30,6 +30,14 @@
             <Trigger Property="IsChecked" Value="True">
                 <Setter Property="Background" Value="#77000000"/>
             </Trigger>
+
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="Black" Opacity="0.3"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
         </Style.Triggers>
     </Style>
 </ResourceDictionary>

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Media;
 
 namespace LC_Sync.MVVM.View
@@ -38,6 +39,8 @@ namespace LC_Sync.MVVM.View
                 double mainWinTop = Application.Current.MainWindow.Top;
                 double mainWinWidth = Application.Current.MainWindow.Width;
                 double mainWinHeight = Application.Current.MainWindow.Height;
+
+                Console.WriteLine(Width);
 
                 Left = mainWinLeft + (mainWinWidth - Width) / 2;
                 Top = mainWinTop + 20;

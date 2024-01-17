@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -86,11 +87,27 @@ namespace LC_Sync.Core
 
             Console.WriteLine("Newest version: " + ghReleaseInfo + ", current version: " + currentlyLoadedVersion);
 
-            if (ghReleaseInfo != currentVersion)
+            char[] splitter = { '.' };
+            string[] ghVersionSplit = ghReleaseInfo.Split(splitter);
+            string[] currentVersionSplit = currentVersion.Split(splitter);
+
+            int[] ghVersionSplitInt = ghVersionSplit.Select(int.Parse).ToArray();
+            int[] currentVersionSplitInt = currentVersionSplit.Select(int.Parse).ToArray();
+
+            bool newVersionAvailable = false;
+            for (int i = 0; i < ghVersionSplitInt.Length; i++)
+            {
+                if (ghVersionSplitInt[i] > currentVersionSplitInt[i])
+                {
+                    newVersionAvailable = true;
+                    break;
+                }
+            }
+
+            if (newVersionAvailable)
             {
                 CustomSelectBox prompt = new CustomSelectBox();
                 prompt.Title = string.Empty;
-                prompt.Width = 520;
                 prompt.Text = "A new version is available, do you want to update?";
                 prompt.ShowDialog();
 

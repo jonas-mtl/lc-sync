@@ -107,7 +107,7 @@
                            Name="VersionTextBlock"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
-                           Margin="25,-8,0,0"
+                           Margin="25,34,0,0"
                            Foreground="Gray"
                            FontSize="18"/>
             </StackPanel>

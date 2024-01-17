@@ -31,7 +31,6 @@ namespace LC_Sync
             CustomSelectBox prompt = new CustomSelectBox();
             prompt.Title = string.Empty;
             prompt.Text = "Are you sure?";
-            prompt.Width = 300;
             prompt.ShowDialog();
 
             while(!prompt.closed)
