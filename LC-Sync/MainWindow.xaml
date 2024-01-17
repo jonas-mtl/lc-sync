@@ -101,8 +101,15 @@
                              Foreground="White"
                              FontSize="18"
                              Click="ExitButton_Click"
-                             Style="{StaticResource MenuButtonTheme}"/>     
+                             Style="{StaticResource MenuButtonTheme}"/>
 
+                <TextBlock Text="(Version 1.0.0)"
+                           Name="VersionTextBlock"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           Margin="25,-8,0,0"
+                           Foreground="Gray"
+                           FontSize="18"/>
             </StackPanel>
 
             <ContentControl Grid.Column="1"

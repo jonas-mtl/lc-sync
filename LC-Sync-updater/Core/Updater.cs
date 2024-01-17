@@ -52,6 +52,8 @@ namespace LC_Sync_updater.Core
             foreach (string filePath in Directory.GetFiles(sourceDir))
             {
                 string fileName = Path.GetFileName(filePath);
+                if (fileName.Contains("LC-Sync-updater.exe")) continue;
+
                 string destFilePath = Path.Combine(destDir, fileName);
                 File.Copy(filePath, destFilePath, true);
             }

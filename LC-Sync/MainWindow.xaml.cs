@@ -1,4 +1,5 @@
-﻿using LC_Sync.Core.Util;
+﻿using LC_Sync.Core;
+using LC_Sync.Core.Util;
 using LC_Sync.MVVM.View;
 using System;
 using System.Diagnostics;
@@ -11,6 +12,9 @@ namespace LC_Sync
         public MainWindow()
         {
             InitializeComponent();
+
+            
+            VersionTextBlock.Text = $"(Version {InitCore.currentlyLoadedVersion.ToString().Remove(InitCore.currentlyLoadedVersion.ToString().Length - 2)})";
         }
 
         private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
