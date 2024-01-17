@@ -1,5 +1,6 @@
 ﻿using LC_Sync.Core.LCSync;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,10 @@ namespace LC_Sync.Core.Util
             File.Delete(SteamHandler.LCInstallationPath + "\\winhttp.dll");
             File.Delete(SteamHandler.LCInstallationPath + "\\doorstop_config.ini");
             File.Delete(SteamHandler.LCInstallationPath + "\\lcsync.json");
+        }
+        public static async Task deletePluginsFolder()
+        {
+            if (Directory.Exists(SteamHandler.LCPluginsPath)) Directory.Delete(SteamHandler.LCPluginsPath, true);
         }
 
         public static async Task InstallModAsync(TSMod tsMod)
@@ -42,7 +47,10 @@ namespace LC_Sync.Core.Util
             else
             {
                 // If "BepInEx" folder doesn't exist, copy all .dll files in modPath to LCPluginsPath
-                string[] dllFiles = Directory.GetFiles(modPath, "*.dll");
+                List<string> dllFiles = SearchForDllFiles(modPath);
+
+                if (!Directory.Exists(SteamHandler.LCPluginsPath)) Directory.CreateDirectory(SteamHandler.LCPluginsPath);
+
                 foreach (string dllFile in dllFiles)
                 {
                     string destinationPath = Path.Combine(SteamHandler.LCPluginsPath, Path.GetFileName(dllFile));
@@ -52,6 +60,40 @@ namespace LC_Sync.Core.Util
 
             Directory.Delete(SteamHandler.LCSyncTmpPath, true);
         }
+        static List<string> SearchForDllFiles(string directory)
+        {
+            List<string> dllFiles = new List<string>();
+
+            try
+            {
+                // Get all files in the current directory with the ".dll" extension
+                string[] currentDirectoryDllFiles = Directory.GetFiles(directory, "*.dll");
+                dllFiles.AddRange(currentDirectoryDllFiles);
+
+                // Search for ".dll" files in subdirectories recursively
+                string[] subdirectories = Directory.GetDirectories(directory);
+                foreach (var subdirectory in subdirectories)
+                {
+                    List<string> subdirectoryDllFiles = SearchForDllFiles(subdirectory);
+                    dllFiles.AddRange(subdirectoryDllFiles);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine($"Unauthorized access to directory: {directory}");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine($"Directory not found: {directory}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+            return dllFiles;
+        }
+
 
         private static string FindBepInExFolder(string directory)
         {

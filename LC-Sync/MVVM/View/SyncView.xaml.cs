@@ -88,6 +88,8 @@ namespace LC_Sync.MVVM.View
             stopwatch.Start();
             Log.Info("Syncing...");
 
+            await FileHandler.deletePluginsFolder();
+
             foreach (TSMod mod in LCSyncData.TSMods)
             {
                 await FileHandler.InstallModAsync(mod);

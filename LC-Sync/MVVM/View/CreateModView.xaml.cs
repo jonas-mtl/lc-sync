@@ -203,6 +203,9 @@ namespace LC_Sync.MVVM.View
         private async void Publish_Click(object sender, RoutedEventArgs e)
         {
             enableSpinner();
+            await FileHandler.deletePluginsFolder();
+
+
             foreach (ModInfo item in modStorage)
             {
                 TSMod newMod = new TSMod(item.ModNamespace, item.ModName);
